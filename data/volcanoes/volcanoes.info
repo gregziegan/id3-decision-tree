@@ -1,0 +1,45 @@
+1. Title: Volcanoes on Venus
+
+2. Source:
+    Frank, A. & Asuncion, A. (2010). UCI Machine Learning Repository [http://archive.ics.uci.edu/ml].
+      Irvine, CA: University of California, School of Information and Computer Science.
+      (http://archive.ics.uci.edu/ml/datasets/Volcanoes+on+Venus+-+JARtool+experiment)
+
+    Michael C. Burl 
+    MS 126-347, JPL 
+    4800 Oak Grove Drive 
+    Pasadena, CA 91109 
+    (818) 393-5345 
+    Michael.C.Burl@jpl.nasa.gov 
+    http://www-aig.jpl.nasa.gov/mls/home/burl/
+
+3. Relevant Information:
+    The data was collected by the Magellan spacecraft over an approximately four
+    year period from 1990--1994. The objective of the mission was to obtain
+    global mapping of the surface of Venus using synthetic aperture radar (SAR).
+    A more detailed discussion of the mission and objectives is available at
+    JPL's Magellan webpage. 
+
+    Ground Truth labels were obtained by experts, and contain labels
+    indicating various degrees of certainty. To create a binary dataset, any
+    instance with a certainty >= 0.5 is positive; other are negative.
+
+    The original labels indicate the location and radius of each candidate
+    volcano in the radar image files (some included in `images` folder). These
+    volcanoes are extracted as 15-by-15 pixel "chips" around the center of each
+    volcano. The chips are then flattened to form a 225-dimensional feature
+    vector. The original image chips for each candidate are shown in
+    `images/chips.png`, with positive instances at the top.
+
+4. Number of instances: 2231 (731 volcanoes, 1500 non-volcanoes)
+
+5. Attributes:
+      1. Chip index
+      2. Image ID (see `images` folder for some examples, or UCI repo for all images)
+      3. Chip pixel value (8-bit unsigned integer)
+         ...
+    228. Class label
+
+See Also:
+    M. Burl, L. Asker, P. Smyth, U. Fayyad, P. Perona, L. Crumpler, and J. Aubele,
+      "Learning to Recognize Volcanoes on Venus", Machine Learning, (March 1998).
