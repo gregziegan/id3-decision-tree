@@ -1,4 +1,4 @@
-from src.information_gain import info_gain
+from src.information_gain import get_information_gain
 
 def test_info_gain():
     pass

@@ -1,22 +1,19 @@
 import math
+import utils
 
 
-def info_gain(examples, attribute, entropy_of_set):
-   gain = entropy_of_set
-   for value in attributeValues(examples, attribute):
-       sub = subset(examples, attribute, value)
-       gain -=  (number in sub)/len(examples) * entropy(sub)
-   return gain
+def get_information_gain(examples, feature, entropy_of_set):
+    gain = entropy_of_set
+    class_dict = utils.get_cl
+    for class_label, count in class_dict.items():
+        gain -= count/len(examples) * get_entropy(feature_dict, len(examples))
+    return gain
 
 
-def entropy(examples, target_attribute):
-   result = 0
-   target_examples = summarize_examples(examples, target_attribute)
-   for example in target_examples:
-       proportion = example/len(examples)
-       result -= proportion * math.log(proportion, 2)
-   return result
-
-
-def summarize_examples(examples, target_attribute):
-    pass
+def get_entropy(example_count):
+    entropy = 0
+    feature_dict = utils.get_example_values_for_feature(examples, feature)
+    for feature, count in feature_dict.items():
+        proportion = count/example_count
+        entropy -= proportion * math.log(proportion, 2)
+    return entropy
