@@ -9,6 +9,25 @@ def get_best_feature(examples):
     pass
 
 
+def is_homogenous(examples, test=None):
+    if test not in ('+', '-'):
+        raise Exception('Test can only be positive or negative')
+
+    for example in examples:
+        if test == '+' and example.value < 0 or test == '-' and example.value > 0:
+            return False
+
+    return True
+
+
+def most_common_value(target_feature, features):
+    pass
+
+
+def subset():
+    pass
+
+
 def get_class_label_values(examples):
     class_label_values = {True: 0, False: 0}
 
