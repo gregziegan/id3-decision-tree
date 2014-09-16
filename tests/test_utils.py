@@ -1,9 +1,6 @@
 from src.mldata import *
 from src.utils import *
 
-import logging
-logging.basicConfig(filename='testing.log', level=logging.DEBUG)
-
 example_data = None
 
 

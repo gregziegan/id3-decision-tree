@@ -1,31 +1,22 @@
 from collections import defaultdict
 
 
-def generate_feature_test(best_feature):
-    pass
-
-
-def get_best_feature(examples):
-    pass
-
-
-def is_homogenous(examples, test=None):
-    if test not in ('+', '-'):
-        raise Exception('Test can only be positive or negative')
-
+def is_homogeneous(examples, positive):
     for example in examples:
-        if test == '+' and example.value < 0 or test == '-' and example.value > 0:
+        if positive and example.value < 0 or not positive and example.value > 0:
             return False
-
     return True
 
 
-def most_common_value(target_feature, features):
-    pass
+def most_common_value(examples):
+    class_labels = get_class_label_values(examples)
+    if class_labels[True] >= class_labels[False]:
+        return True
+    return False
 
 
-def subset():
-    pass
+def subset(examples, feature_index, feature_value):
+    return [example for example in examples if example[feature_index] == feature_value]
 
 
 def get_class_label_values(examples):

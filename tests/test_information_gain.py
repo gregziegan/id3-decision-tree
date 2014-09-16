@@ -1,4 +1,4 @@
-from src.information_gain import get_information_gain
+from src.feature_selection import get_information_gain
 
 def test_info_gain():
     pass
