@@ -7,11 +7,10 @@ import utils
 
 
 class DecisionTreeNode(object):
-
-    def __init__(self, feature_test=None, parent=None, label=None):
+    def __init__(self, feature_test=None, feature_index = None, parent=None, label=None):
         if feature_test and label:
             raise Exception("Node cannot contain a feature test and a label.")
-
+        self.feature_index = feature_index
         self.feature_test = feature_test
         self.parent = parent
         self._children = []
