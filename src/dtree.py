@@ -1,28 +1,31 @@
 import mldata as md
 import numpy as np
+import random
 import argparse
 from tree_generation import DecisionTree
 
 
 def main(problem_name, max_depth=0):
     example_set = md.parse_c45(problem_name, '../data')
-    data_array = np.array(example_set.to_float())
-    np.random.shuffle(data_array)
-    training_set = data_array[:4 * len(data_array)/5]
-    validation_set = data_array[4 * len(data_array)/5:]
-    dtree = DecisionTree(training_set, example_set.schema, max_depth=max_depth)
+    random.shuffle(example_set)
+    training_set = example_set[:4 * len(example_set)/5]
+    validation_set = example_set[4 * len(example_set)/5:]
+    feature_indices = [i for i in range(len(example_set.schema.features[1:-1]))]
+    dtree = DecisionTree(training_set, example_set.schema, feature_indices, max_depth=max_depth)
     for example in validation_set:
         classify(dtree, example)
-    print dtree.root
+    for child in dtree.root.get_children():
+        print child
 
 
 def classify(tree, example):
     node = tree.root
     while not node.label:
         for child in node.get_children():
+            print(child.feature_index)
             if child.feature_test(example[node.feature_index]):
                 node = child
-    print(node.label)
+    print("Assigned label: {}\tActual Class label: {}\n".format(node.label, example[-1]))
 
 
 if __name__ == '__main__':

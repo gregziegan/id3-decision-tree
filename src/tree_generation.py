@@ -22,11 +22,15 @@ class DecisionTreeNode(object):
     def add_child(self, new_child):
         self._children.append(new_child)
 
+    def __repr__(self):
+        return '<DTNode: [label: {}, feature_index: {}]>'.format(self.label, self.feature_index)
+
 
 class DecisionTree(object):
 
-    def __init__(self, examples, features, max_depth):
+    def __init__(self, examples, schema, features, max_depth):
         self.max_depth = max_depth
+        self.schema = schema
         self.root = self._generate_tree(examples, features, 0)
 
     def _generate_tree(self, examples, feature_indices, depth):
@@ -45,25 +49,29 @@ class DecisionTree(object):
             raise Exception("No examples provided. ID3 failed.")
 
         if self.max_depth > 0 and depth == self.max_depth:
+            print 'reached max_depth'
             leaf = DecisionTreeNode(label=utils.most_common_value(examples))
             root.add_child(leaf)
             return root
 
-        if utils.is_homogeneous(examples, positive=True): # test if all examples for class label are positive
+        if utils.is_homogeneous(examples, positive=True):  # test if all examples for class label are positive
+            print 'is positive homogeneous'
             root.label = True
             return root
         elif utils.is_homogeneous(examples, positive=False):
+            print 'is negative homogeneous'
             root.label = False
             return root
 
         if not feature_indices:
+            print 'no feature indices'
             root.label = utils.most_common_value(examples)
             return root
 
-        feature_index = get_best_feature_index(examples, feature_indices)
-        for feature_value in examples[0].schema[feature_index].tup[2]:
+        feature_index = get_best_feature_index(examples, self.schema, feature_indices)
+        for feature_value in self.schema[feature_index].tup[2]:
             feature_test = generate_feature_test(feature_value)
-            node = DecisionTreeNode(feature_test=feature_test, feature_index=feature_index, parent=root)
+            node = DecisionTreeNode(feature_test=feature_test, feature_index=feature_index)
             examples_matching_feature_value = utils.subset(examples, feature_index, feature_value)
             if not examples_matching_feature_value:
                 leaf = DecisionTreeNode(feature_index=feature_index, label=utils.most_common_value(examples))
@@ -77,6 +85,9 @@ class DecisionTree(object):
                 )
 
         return root
+
+    def __repr__(self):
+        return self.root
 
 
 def print_tree(decision_tree):

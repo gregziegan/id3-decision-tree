@@ -2,10 +2,11 @@ from collections import defaultdict
 
 
 def is_homogeneous(examples, positive):
+    homogeneous = True
     for example in examples:
-        if positive and example.value < 0 or not positive and example.value > 0:
-            return False
-    return True
+        if (positive is True and example[-1] is False) or (positive is False and example[-1] is True):
+            homogeneous = False
+    return homogeneous
 
 
 def most_common_value(examples):
@@ -31,7 +32,7 @@ def get_class_label_values(examples):
     return class_label_values
 
 
-def get_example_values_for_feature(examples, feature_index):
+def get_example_values_for_feature(examples, schema, feature_index):
 
     """
     :param examples: Example data
@@ -40,7 +41,7 @@ def get_example_values_for_feature(examples, feature_index):
     """
     feature_values = defaultdict(int)
 
-    for feature_value in examples.schema[feature_index].tup[2]:
+    for feature_value in schema[feature_index].tup[2]:
         feature_values[feature_value] = 0
 
     for i in range(0, len(examples)):
