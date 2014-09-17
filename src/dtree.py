@@ -3,8 +3,9 @@ import numpy as np
 import argparse
 from tree_generation import DecisionTree
 
-def main(problem_name, max_depth):
-    example_set = md.parse_c45(problem_name)
+
+def main(problem_name, max_depth=0):
+    example_set = md.parse_c45(problem_name, '../data')
     data_array = np.array(example_set.to_float())
     np.random.shuffle(data_array)
     training_set = data_array[:4 * len(data_array)/5]
@@ -26,10 +27,9 @@ def classify(tree, example):
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='An implementation of the ID3 algorithm.')
-    parser.add_argument('problem_name', metavar='P',
-                   help='The name of the problem set to process.')
-    parser.add_argument('--max-depth', action='store_const',
-                   help='Limit the tree to a certain depth.')
+    parser.add_argument('problem_name', metavar='P', help='The name of the problem set to process.')
+    parser.add_argument('--max-depth', type=int, help='Limit the tree to a certain depth.')
     #TODO check if depth > 0
     args = parser.parse_args()
-    main(args.problem_name, args.max_depth)
+    max_depth = args.max_depth if args.max_depth else 0
+    main(args.problem_name, max_depth)

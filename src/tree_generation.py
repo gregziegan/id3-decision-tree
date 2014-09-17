@@ -7,13 +7,12 @@ import utils
 
 
 class DecisionTreeNode(object):
-    def __init__(self, feature_test=None, feature_index=None, parent=None, label=None):
+    def __init__(self, feature_test=None, feature_index=None, label=None):
         if feature_test and label:
             raise Exception("Node cannot contain a feature test and a label.")
 
         self.feature_index = feature_index
         self.feature_test = feature_test
-        self.parent = parent
         self._children = []
         self.label = label
 
@@ -27,10 +26,10 @@ class DecisionTreeNode(object):
 class DecisionTree(object):
 
     def __init__(self, examples, features, max_depth):
-        self.root = self._generate_tree(examples, features, 0)
         self.max_depth = max_depth
+        self.root = self._generate_tree(examples, features, 0)
 
-    def _generate_tree(self, examples, feature_indices, depth, parent=None):
+    def _generate_tree(self, examples, feature_indices, depth):
         """
         Generates a Decision Tree using the ID3 algorithm.
 
@@ -40,14 +39,13 @@ class DecisionTree(object):
         :param parent:
        :return:
         """
-        root = DecisionTreeNode(parent=parent)
-        parent.add_child(root)
+        root = DecisionTreeNode()
 
-        if not examples:
+        if len(examples) == 0:
             raise Exception("No examples provided. ID3 failed.")
 
         if self.max_depth > 0 and depth == self.max_depth:
-            leaf = DecisionTreeNode(parent=root, label=utils.most_common_value(examples))
+            leaf = DecisionTreeNode(label=utils.most_common_value(examples))
             root.add_child(leaf)
             return root
 
@@ -68,15 +66,14 @@ class DecisionTree(object):
             node = DecisionTreeNode(feature_test=feature_test, feature_index=feature_index, parent=root)
             examples_matching_feature_value = utils.subset(examples, feature_index, feature_value)
             if not examples_matching_feature_value:
-                leaf = DecisionTreeNode(parent=node, feature_index=feature_index, label=utils.most_common_value(examples))
+                leaf = DecisionTreeNode(feature_index=feature_index, label=utils.most_common_value(examples))
                 node.add_child(leaf)
             else:
-                features_without_best_classifier = [feature for feature in feature_indices if feature != best_feature]
+                features_without_best_classifier = [index for index in feature_indices if index != feature_index]
                 self._generate_tree(
                     examples=examples_matching_feature_value,
                     feature_indices=features_without_best_classifier,
-                    depth=depth + 1,
-                    parent=node,
+                    depth=depth + 1
                 )
 
         return root
