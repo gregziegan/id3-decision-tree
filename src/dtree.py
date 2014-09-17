@@ -4,14 +4,24 @@ import argparse
 from tree_generation import DecisionTree
 
 def main(problem_name, max_depth):
-    dataset = md.parse_c45(problem_name)
-    data_array = np.array(dataset.to_float())
+    example_set = md.parse_c45(problem_name)
+    data_array = np.array(example_set.to_float())
     np.random.shuffle(data_array)
     training_set = data_array[:4 * len(data_array)/5]
     validation_set = data_array[4 * len(data_array)/5:]
-    dtree = DecisionTree(training_set, dataset.schema, max_depth=max_depth)
-    root_node = dtree.root
+    dtree = DecisionTree(training_set, example_set.schema, max_depth=max_depth)
+    for example in validation_set:
+        classify(dtree, example)
     print dtree.root
+
+
+def classify(tree, example):
+    node = tree.root
+    while not node.label:
+        for child in node.get_children():
+            if child.feature_test(example[node.feature_index]):
+                node = child
+    print(node.label)
 
 
 if __name__ == '__main__':

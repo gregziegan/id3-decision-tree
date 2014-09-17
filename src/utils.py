@@ -18,10 +18,6 @@ def most_common_value(examples):
 def subset(examples, feature_index, feature_value):
     return [example for example in examples if example[feature_index] == feature_value]
 
-def classify(tree, example):
-    node = tree.root
-    while node.label != True and node.label != False:
-        node.feature_test(example.)
 
 def get_class_label_values(examples):
     class_label_values = {True: 0, False: 0}
