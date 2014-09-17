@@ -5,3 +5,4 @@
 .floo
 *.log
 env
+*.ipynb
