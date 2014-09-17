@@ -1,11 +1,27 @@
 from collections import defaultdict
 
-def generate_feature_test(best_feature):
-    pass
+
+def is_homogeneous(examples, positive):
+    for example in examples:
+        if positive and example.value < 0 or not positive and example.value > 0:
+            return False
+    return True
 
 
-def get_best_feature(examples):
-    pass
+def most_common_value(examples):
+    class_labels = get_class_label_values(examples)
+    if class_labels[True] >= class_labels[False]:
+        return True
+    return False
+
+
+def subset(examples, feature_index, feature_value):
+    return [example for example in examples if example[feature_index] == feature_value]
+
+def classify(tree, example):
+    node = tree.root
+    while node.label != True and node.label != False:
+        node.feature_test(example.)
 
 def get_class_label_values(examples):
     class_label_values = {True: 0, False: 0}
@@ -17,6 +33,7 @@ def get_class_label_values(examples):
         if class_label in class_label_values:
             class_label_values[class_label] += 1
     return class_label_values
+
 
 def get_example_values_for_feature(examples, feature_index):
 
@@ -35,6 +52,3 @@ def get_example_values_for_feature(examples, feature_index):
         if example_value in feature_values:
             feature_values[example_value] += 1
     return feature_values
-
-
-
