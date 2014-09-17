@@ -10,7 +10,7 @@ def main(problem_name, max_depth):
     training_set = data_array[:4 * len(data_array)/5]
     validation_set = data_array[4 * len(data_array)/5:]
     dtree = DecisionTree(training_set, dataset.schema, max_depth=max_depth)
-    root_node = dtree.root;
+    root_node = dtree.root
     print dtree.root
 
 
