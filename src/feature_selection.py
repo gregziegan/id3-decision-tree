@@ -61,7 +61,7 @@ def get_information_gain(examples, entropy_of_set):
 def get_entropy(examples, feature_index):
     """
 
-    :param examples:
+    @type example:
     :param feature_index:
     :return:
     """

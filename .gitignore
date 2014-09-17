@@ -4,3 +4,4 @@
 .flooignore
 .floo
 *.log
+env
