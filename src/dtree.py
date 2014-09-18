@@ -57,7 +57,7 @@ def classify(tree, example):
     while node.label is None:
         child_index = test_all_feature_values(example, node)
         node = node.get_children()[child_index]
-        print("Assigned label: {}\tActual Class label: {}\n".format(node.label, example[-1]))
+    print("Assigned label: {}\tActual Class label: {}\n".format(node.label, example[-1]))
     return node.label
 
 

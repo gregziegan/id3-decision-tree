@@ -70,8 +70,7 @@ class DecisionTree(object):
 
         if self.max_depth > 0 and depth == self.max_depth:
             print 'reached max_depth'
-            leaf = DecisionTreeNode(label=utils.most_common_value(examples))
-            root.add_child(leaf)
+            root.label = utils.most_common_value(examples)
             return root
 
         if utils.is_homogeneous(examples, positive=True):  # test if all examples for class label are positive
