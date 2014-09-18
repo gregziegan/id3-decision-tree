@@ -40,10 +40,14 @@ def get_example_values_for_feature(examples, schema, feature_index):
     :return: A dict containing the possible feature values mapped to the count associated with each.
     """
     feature_values = defaultdict(int)
-
-    for feature_value in schema[feature_index].tup[2]:
+    print(feature_index)
+    features = schema[feature_index]
+    print(features)
+    test = features.values
+    print(test)
+    print(type(test))
+    for feature_value in test:
         feature_values[feature_value] = 0
-
     for i in range(0, len(examples)):
         example_value = examples[i][feature_index]
         if example_value in feature_values:
