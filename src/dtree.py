@@ -11,28 +11,50 @@ def main(problem_name, max_depth=0):
     validation_set = example_set[4 * len(example_set)/5:]
     feature_indices = [i for i in range(1, len(example_set.schema.features[1:-1]))]
     dtree = DecisionTree(training_set, example_set.schema, feature_indices, max_depth=max_depth)
-    for example in validation_set:
-        classify(dtree, example)
-    #for child in dtree.root.get_children():
-    #    print child
+    accuracy = get_accuracy(dtree, validation_set)
+    print "Accuracy: {}".format(accuracy)
+    tree_size, tree_depth = get_tree_size_and_depth(dtree.root)
+    print "Size: {}".format(tree_size)
+    print "Maximum Depth: {}".format(tree_depth)
     print_tree(dtree)
 
 
 def get_accuracy(tree, examples):
-    actual_class_label = {True: 0, False: 0}
-    predicted_class_label = {True: 0, False: 0}
+    accuracy = {'TP': 0, 'TN': 0, 'FP': 0, 'FN': 0}
     for example in examples:
-        classification = classify(tree, example)
-        actual_class_label[example[-1]] += 1
-        predicted_class_label[classification] += 1
+        predicted_label = classify(tree, example)
+        actual_label = example[-1]
+        if predicted_label and actual_label:
+            accuracy['TP'] += 1
+        elif predicted_label and not actual_label:
+            accuracy['FP'] += 1
+        elif not predicted_label and actual_label:
+            accuracy['FN'] += 1
+        else:
+            accuracy['TN'] += 1
+    final_accuracy = (float(accuracy['TP'] + accuracy['TN'])) / (float(accuracy['TP'] + accuracy['FP'] + accuracy['FN'] + accuracy['TN']))
+    return final_accuracy
 
+
+def get_tree_size_and_depth(node):
+    tree_size = 0
+    max_depth = -1
+    parents = [node]
+    while parents:
+        for n in parents:
+            new_parents = []
+            for child in n.get_children():
+                if(child.depth > max_depth):
+                    max_depth = child.depth
+                tree_size += 1
+                new_parents.append(child)
+            parents = new_parents
+    return tree_size, max_depth
 
 
 def classify(tree, example):
     node = tree.root
     while node.label is None:
-        print node.label
-        print node.feature_values
         child_index = test_all_feature_values(example, node)
         node = node.get_children()[child_index]
         print("Assigned label: {}\tActual Class label: {}\n".format(node.label, example[-1]))

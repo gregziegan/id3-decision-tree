@@ -8,7 +8,7 @@ import utils
 
 class DecisionTreeNode(object):
 
-    def __init__(self, feature_index=None, feature_values=None, label=None, parent=None):
+    def __init__(self, feature_index=None, feature_values=None, label=None, parent=None, depth=None):
         if feature_index and label:
             raise Exception("Node cannot be a leaf and a decision node")
 
@@ -17,6 +17,7 @@ class DecisionTreeNode(object):
         self.parent = parent
         self._children = []
         self.label = label
+        self.depth = depth
 
     def get_children(self):
         return self._children
@@ -61,7 +62,7 @@ class DecisionTree(object):
         print "\nDEPTH: {}\n".format(depth)
         root = None
         if depth == 0:
-            root = DecisionTreeNode()
+            root = DecisionTreeNode(depth=depth)
         else:
             root = node
 
@@ -92,7 +93,7 @@ class DecisionTree(object):
         root.feature_values = self.schema[root.feature_index].values
         print "feature_to_test: {}, index: {}".format(self.schema[root.feature_index].name, root.feature_index)
         for feature_value in root.feature_values:
-            child = DecisionTreeNode(parent=root)
+            child = DecisionTreeNode(parent=root, depth=depth+1)
             root.add_child(child)
             examples_matching_feature_value = utils.subset(examples, root.feature_index, feature_value)
             print "# of examples matching '{}': {}".format(feature_value, len(examples_matching_feature_value))

@@ -84,8 +84,8 @@ def get_entropy(examples, schema, feature_index):
     entropy = 0
     feature_counts = utils.get_example_values_for_feature(examples, schema, feature_index)
     for count in feature_counts.values():
-        #if count == 0:
-        #    continue
+        if count == 0:
+           continue
         proportion = float(count)/float(len(examples))
         #print 'count: {}, num_of_ex: {}, proportion: {}'.format(count, len(examples), proportion)
         entropy -= proportion * math.log(proportion, 2)
