@@ -3,7 +3,12 @@ import utils
 
 
 def get_feature_threshold(examples, class_label):
-    sorted_by_x = sorted(examples)
+    """
+    Partitioning algorithm for CONTINUOUS data sets
+    :param examples: list of examples
+    :param class_label: label to determine partition
+    :return: test value
+    """
     pass
 
 
@@ -14,17 +19,6 @@ def test_all_feature_values(example, node):
 
     raise Exception("Example does not match any feature value.")
 
-"""
-def generate_feature_test(feature_values, feature_type):
-    test_function = None
-    if feature_type == 'NOMINAL':
-        test_function = test_all_feature_values()
-    else:
-        pass
-        #TODO
-        #test_function = lambda example:
-    return test_function
-"""
 
 def get_best_feature_index(examples, schema, feature_indices):
     """

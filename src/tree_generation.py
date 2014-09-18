@@ -111,6 +111,45 @@ class DecisionTree(object):
 
         return root
 
+    def classify(self, example):
+        node = self.root
+        while node.label is None:
+            child_index = test_all_feature_values(example, node)
+            node = node.get_children()[child_index]
+        print("Assigned label: {}\tActual Class label: {}\n".format(node.label, example[-1]))
+        return node.label
+
+    def get_accuracy(self, examples):
+        accuracy = {'TP': 0, 'TN': 0, 'FP': 0, 'FN': 0}
+        for example in examples:
+            predicted_label = self.classify(example)
+            actual_label = example[-1]
+            if predicted_label and actual_label:
+                accuracy['TP'] += 1
+            elif predicted_label and not actual_label:
+                accuracy['FP'] += 1
+            elif not predicted_label and actual_label:
+                accuracy['FN'] += 1
+            else:
+                accuracy['TN'] += 1
+        final_accuracy = (float(accuracy['TP'] + accuracy['TN'])) / (float(accuracy['TP'] + accuracy['FP'] + accuracy['FN'] + accuracy['TN']))
+        return final_accuracy
+
+    def get_size_and_depth(self):
+        tree_size = 0
+        tree_depth = -1
+        parents = [self.root]
+        while parents:
+            for n in parents:
+                new_parents = []
+                for child in n.get_children():
+                    if(child.depth > tree_depth):
+                        tree_depth = child.depth
+                    tree_size += 1
+                    new_parents.append(child)
+                parents = new_parents
+        return tree_size, tree_depth
+
     def __repr__(self):
         return self.root
 
