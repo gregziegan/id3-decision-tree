@@ -47,7 +47,7 @@ class DecisionTree(object):
         if len(examples) == 0:
             raise Exception("No examples provided. ID3 failed.")
 
-        print "DEPTH: {}\n\n".format(depth)
+        print "DEPTH: {}\n".format(depth)
         root = None
         if depth == 0:
             root = DecisionTreeNode()
@@ -61,11 +61,11 @@ class DecisionTree(object):
             return root
 
         if utils.is_homogeneous(examples, positive=True):  # test if all examples for class label are positive
-            print 'is positive homogeneous'
+            print 'all examples are class label: True'
             root.label = True
             return root
         elif utils.is_homogeneous(examples, positive=False):
-            print 'is negative homogeneous'
+            print 'all examples are class label: False'
             root.label = False
             return root
 
@@ -75,7 +75,7 @@ class DecisionTree(object):
             return root
 
         feature_index = get_best_feature_index(examples, self.schema, feature_indices)
-        print "feature_index: {}".format(feature_index)
+        print "feature_to_test: {}, index: {}".format(self.schema[feature_index].name, feature_index)
         for feature_value in self.schema[feature_index].values:
             print feature_value
             feature_type = self.schema[feature_index].type
@@ -83,8 +83,9 @@ class DecisionTree(object):
             child = DecisionTreeNode(feature_test=feature_test, feature_index=feature_index, parent=root)
             root.add_child(child)
             examples_matching_feature_value = utils.subset(examples, feature_index, feature_value)
-            print "examples matching feature value: {}".format(len(examples_matching_feature_value))
+            print "# of examples matching '{}': {}".format(feature_value, len(examples_matching_feature_value))
             if not examples_matching_feature_value:
+                print "no examples match '{}'. # of examples: {}".format(feature_value, len(examples_matching_feature_value))
                 leaf = DecisionTreeNode(
                     feature_index=feature_index,
                     label=utils.most_common_value(examples),
@@ -93,7 +94,7 @@ class DecisionTree(object):
                 child.add_child(leaf)
             else:
                 features_without_best_classifier = [index for index in feature_indices if index != feature_index]
-                print "features without best classifier: {}".format(len(features_without_best_classifier))
+                print "# of features without best classifier: {}".format(len(features_without_best_classifier))
                 self._generate_tree(
                     examples=examples_matching_feature_value,
                     feature_indices=features_without_best_classifier,
@@ -120,4 +121,4 @@ def add_children(graph, node):
 def print_tree(decision_tree):
     graph = pydot.Dot(graph_type='graph')
     add_children(graph, decision_tree.root)
-    graph.write_png('decision_tree_{}.png'.format(str(datetime.datetime.now())))
+    graph.write_png('/tmp/decision_tree_{}.png'.format(str(datetime.datetime.now())))
