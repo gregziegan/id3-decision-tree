@@ -2,14 +2,14 @@ import math
 import utils
 
 
-def generate_feature_test(feature_value):
+def generate_feature_test(feature_type, feature_value):
     """
     Returns a function closure that will evaluate an example based on its Feature Type:
         Type can be either NOMINAL or CONTINUOUS
     :param feature_value: feature value
     """
     test_function = None
-    if feature_value.type == 'NOMINAL':
+    if feature_type == 'NOMINAL':
         test_function = lambda example: True if example == feature_value else False
     else:
         pass
@@ -27,7 +27,11 @@ def get_best_feature_index(examples, schema, feature_indices):
     :param feature_indices: the indices of features on each Example's Schema
     :return: int index of the best feature
     """
-    gain_ratios = [get_gain_ratio(examples, schema, index, get_entropy(examples, schema, index)) for index in feature_indices]
+    gain_ratios = []
+    for index in feature_indices:
+        entropy_of_feature_set = get_entropy(examples, schema, index)
+        gain_ratios.append(get_gain_ratio(examples, schema, index, entropy_of_feature_set))
+
     max_index, max_value = max(enumerate(gain_ratios), key=lambda p: p[1])
     return max_index
 
@@ -40,11 +44,11 @@ def get_gain_ratio(examples, schema, feature_index, entropy):
     @type entropy: float
     :return: gain ratio
     """
-    gain = get_information_gain(examples, schema, entropy) / entropy
+    gain = get_information_gain(examples, feature_index, schema, entropy) / entropy
     return gain/entropy
 
 
-def get_information_gain(examples, schema, entropy_of_set):
+def get_information_gain(examples, feature_index, schema, entropy_of_set):
     """
 
     :param examples: numpy array of Examples
@@ -52,9 +56,11 @@ def get_information_gain(examples, schema, entropy_of_set):
     :return: float
     """
     gain = entropy_of_set
-    class_dict = utils.get_class_label_values(examples)
-    for class_label, count in class_dict.items():
-        gain -= count/len(examples) * get_entropy(class_dict, schema, len(examples))
+    feature_counts = utils.get_example_values_for_feature(examples, schema, feature_index)
+    for feature_value, count in feature_counts.items():
+        if count == 0:
+            continue
+        gain -= count/len(examples) * get_entropy(utils.subset(examples, feature_index, feature_value), schema, feature_index)
     return gain
 
 
@@ -66,9 +72,11 @@ def get_entropy(examples, schema, feature_index):
     :return:
     """
     entropy = 0
-    feature_dict = utils.get_example_values_for_feature(examples, schema, feature_index)
-    for feature_index, count in feature_dict.items():
+    feature_counts = utils.get_example_values_for_feature(examples, schema, feature_index)
+    for count in feature_counts.values():
+        if count == 0:
+            continue
         proportion = float(count)/float(len(examples))
-        print 'count: {}, num_of_ex: {}, proportion: {}'.format(count, len(examples), proportion)
+        #print 'count: {}, num_of_ex: {}, proportion: {}'.format(count, len(examples), proportion)
         entropy -= proportion * math.log(proportion, 2)
     return entropy

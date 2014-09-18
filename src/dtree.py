@@ -10,10 +10,10 @@ def main(problem_name, max_depth=0):
     random.shuffle(example_set)
     training_set = example_set[:4 * len(example_set)/5]
     validation_set = example_set[4 * len(example_set)/5:]
-    feature_indices = [i for i in range(len(example_set.schema.features[1:-1]))]
+    feature_indices = [i for i in range(1, len(example_set.schema.features[1:-1]))]
     dtree = DecisionTree(training_set, example_set.schema, feature_indices, max_depth=max_depth)
-    for example in validation_set:
-        classify(dtree, example)
+    #for example in validation_set:
+    #    classify(dtree, example)
     for child in dtree.root.get_children():
         print child
 

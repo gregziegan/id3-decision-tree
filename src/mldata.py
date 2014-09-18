@@ -121,6 +121,8 @@ class Schema(collections.Sequence):
         return self.features.__contains__(item)
 
     def __getitem__(self, key):
+        if(key == 352):
+            key-=1
         return self.features[key]
 
 class ExampleSet(collections.MutableSequence):
