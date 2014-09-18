@@ -2,7 +2,7 @@ import mldata as md
 import numpy as np
 import random
 import argparse
-from tree_generation import DecisionTree
+from tree_generation import DecisionTree, print_tree
 
 
 def main(problem_name, max_depth=0):
@@ -14,9 +14,9 @@ def main(problem_name, max_depth=0):
     dtree = DecisionTree(training_set, example_set.schema, feature_indices, max_depth=max_depth)
     #for example in validation_set:
     #    classify(dtree, example)
-    for child in dtree.root.get_children():
-        print child
-
+    #for child in dtree.root.get_children():
+    #    print child
+    print_tree(dtree)
 
 def classify(tree, example):
     node = tree.root

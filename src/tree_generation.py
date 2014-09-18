@@ -7,12 +7,13 @@ import utils
 
 
 class DecisionTreeNode(object):
-    def __init__(self, feature_test=None, feature_index=None, label=None):
+    def __init__(self, feature_test=None, feature_index=None, label=None, parent=None):
         if feature_test and label:
             raise Exception("Node cannot contain a feature test and a label.")
 
         self.feature_index = feature_index
         self.feature_test = feature_test
+        self.parent = parent
         self._children = []
         self.label = label
 
@@ -79,12 +80,16 @@ class DecisionTree(object):
             print feature_value
             feature_type = self.schema[feature_index].type
             feature_test = generate_feature_test(feature_type, feature_value)
-            child = DecisionTreeNode(feature_test=feature_test, feature_index=feature_index)
+            child = DecisionTreeNode(feature_test=feature_test, feature_index=feature_index, parent=root)
             root.add_child(child)
             examples_matching_feature_value = utils.subset(examples, feature_index, feature_value)
             print "examples matching feature value: {}".format(len(examples_matching_feature_value))
             if not examples_matching_feature_value:
-                leaf = DecisionTreeNode(feature_index=feature_index, label=utils.most_common_value(examples))
+                leaf = DecisionTreeNode(
+                    feature_index=feature_index,
+                    label=utils.most_common_value(examples),
+                    parent=child
+                )
                 child.add_child(leaf)
             else:
                 features_without_best_classifier = [index for index in feature_indices if index != feature_index]
@@ -102,6 +107,17 @@ class DecisionTree(object):
         return self.root
 
 
+def add_children(graph, node):
+    if not node.get_children():
+        return
+
+    for child in node.get_children():
+        edge = pydot.Edge(str(child.parent.feature_index), str(child.feature_index))
+        graph.add_edge(edge)
+        add_children(graph, child)
+
+
 def print_tree(decision_tree):
-    graph = pydot.Dot(graph_type='graph# the idea here is not to cover how to represent the hierarchical data')
+    graph = pydot.Dot(graph_type='graph')
+    add_children(graph, decision_tree.root)
     graph.write_png('decision_tree_{}.png'.format(str(datetime.datetime.now())))
