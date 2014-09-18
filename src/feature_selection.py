@@ -27,11 +27,10 @@ def get_best_feature_index(examples, schema, feature_indices):
     :param feature_indices: the indices of features on each Example's Schema
     :return: int index of the best feature
     """
-    gain_ratios = []
+    gain_ratios = [-1] * len(schema)
     for index in feature_indices:
         entropy_of_feature_set = get_entropy(examples, schema, index)
-        gain_ratios.append(get_gain_ratio(examples, schema, index, entropy_of_feature_set))
-
+        gain_ratios[index] = (get_gain_ratio(examples, schema, index, entropy_of_feature_set))
     max_index, max_value = max(enumerate(gain_ratios), key=lambda p: p[1])
     return max_index
 
