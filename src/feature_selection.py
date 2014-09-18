@@ -2,21 +2,29 @@ import math
 import utils
 
 
-def generate_feature_test(feature_type, feature_value):
-    """
-    Returns a function closure that will evaluate an example based on its Feature Type:
-        Type can be either NOMINAL or CONTINUOUS
-    :param feature_value: feature value
-    """
+def get_feature_threshold(examples, class_label):
+    sorted_by_x = sorted(examples)
+    pass
+
+
+def test_all_feature_values(example, node):
+    for feature_value_index in range(len(node.feature_values)):
+        if example[node.feature_index] == node.feature_values[feature_value_index]:
+            return feature_value_index
+
+    raise Exception("Example does not match any feature value.")
+
+"""
+def generate_feature_test(feature_values, feature_type):
     test_function = None
     if feature_type == 'NOMINAL':
-        test_function = lambda example: True if example == feature_value else False
+        test_function = test_all_feature_values()
     else:
         pass
         #TODO
         #test_function = lambda example:
     return test_function
-
+"""
 
 def get_best_feature_index(examples, schema, feature_indices):
     """
@@ -76,8 +84,8 @@ def get_entropy(examples, schema, feature_index):
     entropy = 0
     feature_counts = utils.get_example_values_for_feature(examples, schema, feature_index)
     for count in feature_counts.values():
-        if count == 0:
-            continue
+        #if count == 0:
+        #    continue
         proportion = float(count)/float(len(examples))
         #print 'count: {}, num_of_ex: {}, proportion: {}'.format(count, len(examples), proportion)
         entropy -= proportion * math.log(proportion, 2)

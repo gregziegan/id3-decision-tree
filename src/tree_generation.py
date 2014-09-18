@@ -2,17 +2,18 @@
 import datetime
 import pydot
 
-from feature_selection import get_best_feature_index, generate_feature_test
+from feature_selection import get_best_feature_index, test_all_feature_values
 import utils
 
 
 class DecisionTreeNode(object):
-    def __init__(self, feature_test=None, feature_index=None, label=None, parent=None):
-        if feature_test and label:
-            raise Exception("Node cannot contain a feature test and a label.")
+
+    def __init__(self, feature_index=None, feature_values=None, label=None, parent=None):
+        if feature_index and label:
+            raise Exception("Node cannot be a leaf and a decision node")
 
         self.feature_index = feature_index
-        self.feature_test = feature_test
+        self.feature_values = feature_values
         self.parent = parent
         self._children = []
         self.label = label
@@ -23,8 +24,18 @@ class DecisionTreeNode(object):
     def add_child(self, new_child):
         self._children.append(new_child)
 
+    @property
+    def full_description(self):
+        return '<Node: label: {}, feature_index: {}, feature_values: {}, parent: {}, children: {}>'.format(
+            self.label, self.feature_index, self.feature_values, self.parent, self._children
+        )
+
     def __repr__(self):
-        return '<DTNode: [label: {}, feature_index: {}]>'.format(self.label, self.feature_index)
+        if self.label != None:
+            return "{}-{}".format(self.label, self.parent)
+        else:
+            parent = self.parent.feature_index if self.parent else 'null'
+            return "{}-{}".format(self.feature_index, parent)
 
 
 class DecisionTree(object):
@@ -47,12 +58,14 @@ class DecisionTree(object):
         if len(examples) == 0:
             raise Exception("No examples provided. ID3 failed.")
 
-        print "DEPTH: {}\n".format(depth)
+        print "\nDEPTH: {}\n".format(depth)
         root = None
         if depth == 0:
             root = DecisionTreeNode()
         else:
             root = node
+
+        print "\n\n{}\n\n".format(root.full_description)
 
         if self.max_depth > 0 and depth == self.max_depth:
             print 'reached max_depth'
@@ -74,26 +87,20 @@ class DecisionTree(object):
             root.label = utils.most_common_value(examples)
             return root
 
-        feature_index = get_best_feature_index(examples, self.schema, feature_indices)
-        print "feature_to_test: {}, index: {}".format(self.schema[feature_index].name, feature_index)
-        for feature_value in self.schema[feature_index].values:
-            print feature_value
-            feature_type = self.schema[feature_index].type
-            feature_test = generate_feature_test(feature_type, feature_value)
-            child = DecisionTreeNode(feature_test=feature_test, feature_index=feature_index, parent=root)
+        root.feature_index = get_best_feature_index(examples, self.schema, feature_indices)
+        feature_type = self.schema[root.feature_index].type  # NOMINAL or CONTINUOUS
+        root.feature_values = self.schema[root.feature_index].values
+        print "feature_to_test: {}, index: {}".format(self.schema[root.feature_index].name, root.feature_index)
+        for feature_value in root.feature_values:
+            child = DecisionTreeNode(parent=root)
             root.add_child(child)
-            examples_matching_feature_value = utils.subset(examples, feature_index, feature_value)
+            examples_matching_feature_value = utils.subset(examples, root.feature_index, feature_value)
             print "# of examples matching '{}': {}".format(feature_value, len(examples_matching_feature_value))
             if not examples_matching_feature_value:
                 print "no examples match '{}'. # of examples: {}".format(feature_value, len(examples_matching_feature_value))
-                leaf = DecisionTreeNode(
-                    feature_index=feature_index,
-                    label=utils.most_common_value(examples),
-                    parent=child
-                )
-                child.add_child(leaf)
+                child.label=utils.most_common_value(examples)
             else:
-                features_without_best_classifier = [index for index in feature_indices if index != feature_index]
+                features_without_best_classifier = [index for index in feature_indices if index != root.feature_index]
                 print "# of features without best classifier: {}".format(len(features_without_best_classifier))
                 self._generate_tree(
                     examples=examples_matching_feature_value,
@@ -108,17 +115,17 @@ class DecisionTree(object):
         return self.root
 
 
-def add_children(graph, node):
+def add_children(graph, node, schema):
     if not node.get_children():
         return
 
     for child in node.get_children():
-        edge = pydot.Edge(str(child.parent.feature_index), str(child.feature_index))
+        edge = pydot.Edge(str(child.parent), str(child))
         graph.add_edge(edge)
-        add_children(graph, child)
+        add_children(graph, child, schema)
 
 
 def print_tree(decision_tree):
     graph = pydot.Dot(graph_type='graph')
-    add_children(graph, decision_tree.root)
+    add_children(graph, decision_tree.root, decision_tree.schema)
     graph.write_png('/tmp/decision_tree_{}.png'.format(str(datetime.datetime.now())))

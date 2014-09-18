@@ -1,9 +1,8 @@
 import mldata as md
-import numpy as np
 import random
 import argparse
 from tree_generation import DecisionTree, print_tree
-
+from feature_selection import test_all_feature_values
 
 def main(problem_name, max_depth=0):
     example_set = md.parse_c45(problem_name, '../data')
@@ -12,20 +11,32 @@ def main(problem_name, max_depth=0):
     validation_set = example_set[4 * len(example_set)/5:]
     feature_indices = [i for i in range(1, len(example_set.schema.features[1:-1]))]
     dtree = DecisionTree(training_set, example_set.schema, feature_indices, max_depth=max_depth)
-    #for example in validation_set:
-    #    classify(dtree, example)
+    for example in validation_set:
+        classify(dtree, example)
     #for child in dtree.root.get_children():
     #    print child
     print_tree(dtree)
 
+
+def get_accuracy(tree, examples):
+    actual_class_label = {True: 0, False: 0}
+    predicted_class_label = {True: 0, False: 0}
+    for example in examples:
+        classification = classify(tree, example)
+        actual_class_label[example[-1]] += 1
+        predicted_class_label[classification] += 1
+
+
+
 def classify(tree, example):
     node = tree.root
-    while not node.label:
-        for child in node.get_children():
-            print(child.feature_index)
-            if child.feature_test(example[node.feature_index]):
-                node = child
-    print("Assigned label: {}\tActual Class label: {}\n".format(node.label, example[-1]))
+    while node.label is None:
+        print node.label
+        print node.feature_values
+        child_index = test_all_feature_values(example, node)
+        node = node.get_children()[child_index]
+        print("Assigned label: {}\tActual Class label: {}\n".format(node.label, example[-1]))
+    return node.label
 
 
 if __name__ == '__main__':
