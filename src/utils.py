@@ -16,9 +16,14 @@ def most_common_value(examples):
     return False
 
 
-def subset(examples, feature_index, feature_value):
-    return [example for example in examples if example[feature_index] == feature_value]
-
+def subset(examples, feature_index, feature_value, is_nominal, comparison_operator=None):
+    if is_nominal:
+        return [example for example in examples if example[feature_index] == feature_value]
+    else:
+        if comparison_operator == '<':
+            return [example for example in examples if example[feature_index] <= feature_value]
+        else:
+            return [example for example in examples if example[feature_index] > feature_value]
 
 def get_class_label_values(examples):
     class_label_values = {True: 0, False: 0}
@@ -48,11 +53,12 @@ def get_example_values_for_feature(examples, schema, feature_index, is_nominal):
             example_value = examples[i][feature_index]
             if example_value in feature_value_counts:
                 feature_value_counts[example_value] += 1
-
     else:
         feature_value = schema
-        for example in examples:
-            if example[feature_index] <= feature_value:
+        for i in range(0, len(examples)):
+            test = examples[i][feature_index]
+            #print 'feature_value: {} example: {}'.format(feature_value, examples[i][feature_index])
+            if test <= feature_value:
                 feature_value_counts[True] += 1
             else:
                 feature_value_counts[False] += 1

@@ -1,6 +1,6 @@
 # coding: utf-8
 import datetime
-import pydot
+#import pydot
 
 from feature_selection import get_best_feature_index_and_value, test_all_feature_values, get_continuous_feature_values, get_best_threshold
 import utils
@@ -8,7 +8,7 @@ import utils
 
 class DecisionTreeNode(object):
 
-    def __init__(self, feature_index=None, feature_values=None, label=None, parent=None, depth=None):
+    def __init__(self, feature_index=None, feature_values=None, label=None, parent=None, depth=None, is_nominal=True):
         if feature_index and label:
             raise Exception("Node cannot be a leaf and a decision node")
 
@@ -18,6 +18,7 @@ class DecisionTreeNode(object):
         self._children = []
         self.label = label
         self.depth = depth
+        self.is_nominal = is_nominal
 
     def get_children(self):
         return self._children
@@ -59,47 +60,46 @@ class DecisionTree(object):
         if len(examples) == 0:
             raise Exception("No examples provided. ID3 failed.")
 
-        print "\nDEPTH: {}\n".format(depth)
         root = None
         if depth == 0:
             root = DecisionTreeNode(depth=depth)
         else:
             root = node
 
-        print "\n\n{}\n\n".format(root.full_description)
-
         if self.max_depth > 0 and depth == self.max_depth:
-            print 'reached max_depth'
             root.label = utils.most_common_value(examples)
             return root
 
         if utils.is_homogeneous(examples, positive=True):  # test if all examples for class label are positive
-            print 'all examples are class label: True'
             root.label = True
             return root
         elif utils.is_homogeneous(examples, positive=False):
-            print 'all examples are class label: False'
             root.label = False
             return root
 
         if not feature_indices:
-            print 'no feature indices'
             root.label = utils.most_common_value(examples)
             return root
 
-        root.feature_index, root.feature_values = get_best_feature_index_and_value(examples, self.schema, feature_indices)
-        print "feature_to_test: {}, index: {}".format(self.schema[root.feature_index].name, root.feature_index)
-        for feature_value in root.feature_values:
+        root.feature_index, test_threshold = get_best_feature_index_and_value(examples, self.schema, feature_indices)
+        is_nominal = self.schema[root.feature_index].type == 'NOMINAL'
+        if is_nominal:
+            root.feature_values = self.schema[root.feature_index].values
+        else:
+            root.is_nominal = False
+            root.feature_values = [test_threshold, test_threshold]
+        for feature_value_index in range(len(root.feature_values)):
             child = DecisionTreeNode(parent=root, depth=depth+1)
             root.add_child(child)
-            examples_matching_feature_value = utils.subset(examples, root.feature_index, feature_value)
-            print "# of examples matching '{}': {}".format(feature_value, len(examples_matching_feature_value))
+            if feature_value_index == 0:
+                comparison_operator = '<'
+            else:
+                comparison_operator = '>'
+            examples_matching_feature_value = utils.subset(examples, root.feature_index, root.feature_values[feature_value_index], is_nominal, comparison_operator=comparison_operator)
             if not examples_matching_feature_value:
-                print "no examples match '{}'. # of examples: {}".format(feature_value, len(examples_matching_feature_value))
                 child.label=utils.most_common_value(examples)
             else:
                 features_without_best_classifier = [index for index in feature_indices if index != root.feature_index]
-                print "# of features without best classifier: {}".format(len(features_without_best_classifier))
                 self._generate_tree(
                     examples=examples_matching_feature_value,
                     feature_indices=features_without_best_classifier,
@@ -112,9 +112,8 @@ class DecisionTree(object):
     def classify(self, example):
         node = self.root
         while node.label is None:
-            child_index = test_all_feature_values(example, node)
+            child_index = test_all_feature_values(example, node, node.is_nominal)
             node = node.get_children()[child_index]
-        print("Assigned label: {}\tActual Class label: {}\n".format(node.label, example[-1]))
         return node.label
 
     def get_accuracy(self, examples):
@@ -151,7 +150,7 @@ class DecisionTree(object):
     def __repr__(self):
         return self.root
 
-
+"""
 def add_children(graph, node, schema):
     if not node.get_children():
         return
@@ -162,7 +161,9 @@ def add_children(graph, node, schema):
         add_children(graph, child, schema)
 
 
+requires pydot
 def print_tree(decision_tree):
     graph = pydot.Dot(graph_type='graph')
     add_children(graph, decision_tree.root, decision_tree.schema)
     graph.write_png('/tmp/decision_tree_{}.png'.format(str(datetime.datetime.now())))
+"""

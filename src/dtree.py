@@ -1,11 +1,12 @@
 import mldata as md
 import random
 import argparse
-from tree_generation import DecisionTree, print_tree
+from tree_generation import DecisionTree
 
 
 def main(problem_name, max_depth=0):
     example_set = md.parse_c45(problem_name, '../data')
+    random.seed(12345)
     random.shuffle(example_set)
     training_set = example_set[:4 * len(example_set)/5]
     validation_set = example_set[4 * len(example_set)/5:]
@@ -16,7 +17,6 @@ def main(problem_name, max_depth=0):
     tree_size, tree_depth = dtree.get_size_and_depth()
     print "Size: {}".format(tree_size)
     print "Maximum Depth: {}".format(tree_depth)
-    print_tree(dtree)
 
 
 if __name__ == '__main__':
