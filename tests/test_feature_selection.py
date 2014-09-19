@@ -1,4 +1,4 @@
-from src.feature_selection import get_information_gain, get_entropy, generate_feature_test, get_best_feature_index
+from src.feature_selection import get_information_gain, get_entropy, generate_feature_test, get_best_feature_index_and_value
 from src import mldata as md
 
 example_set = None

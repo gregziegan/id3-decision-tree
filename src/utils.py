@@ -32,7 +32,7 @@ def get_class_label_values(examples):
     return class_label_values
 
 
-def get_example_values_for_feature(examples, schema, feature_index):
+def get_example_values_for_feature(examples, schema, feature_index, is_nominal):
 
     """
     :param examples: Example data
@@ -40,11 +40,21 @@ def get_example_values_for_feature(examples, schema, feature_index):
     :return: A dict containing the possible feature values mapped to the count associated with each.
     """
     feature_value_counts = defaultdict(int)
-    feature_values = schema[feature_index].values
-    for feature_value in feature_values:
-        feature_value_counts[feature_value] = 0
-    for i in range(0, len(examples)):
-        example_value = examples[i][feature_index]
-        if example_value in feature_value_counts:
-            feature_value_counts[example_value] += 1
+    if is_nominal:
+        feature_values = schema[feature_index].values
+        for feature_value in feature_values:
+            feature_value_counts[feature_value] = 0
+        for i in range(0, len(examples)):
+            example_value = examples[i][feature_index]
+            if example_value in feature_value_counts:
+                feature_value_counts[example_value] += 1
+
+    else:
+        feature_value = schema
+        for example in examples:
+            if example[feature_index] <= feature_value:
+                feature_value_counts[True] += 1
+            else:
+                feature_value_counts[False] += 1
+
     return feature_value_counts

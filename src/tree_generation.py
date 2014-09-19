@@ -2,7 +2,7 @@
 import datetime
 import pydot
 
-from feature_selection import get_best_feature_index, test_all_feature_values
+from feature_selection import get_best_feature_index_and_value, test_all_feature_values, get_continuous_feature_values, get_best_threshold
 import utils
 
 
@@ -87,9 +87,7 @@ class DecisionTree(object):
             root.label = utils.most_common_value(examples)
             return root
 
-        root.feature_index = get_best_feature_index(examples, self.schema, feature_indices)
-        feature_type = self.schema[root.feature_index].type  # NOMINAL or CONTINUOUS
-        root.feature_values = self.schema[root.feature_index].values
+        root.feature_index, root.feature_values = get_best_feature_index_and_value(examples, self.schema, feature_indices)
         print "feature_to_test: {}, index: {}".format(self.schema[root.feature_index].name, root.feature_index)
         for feature_value in root.feature_values:
             child = DecisionTreeNode(parent=root, depth=depth+1)
