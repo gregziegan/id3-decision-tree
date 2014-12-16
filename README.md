@@ -1,6 +1,5 @@
-#Programming Assignment 1 
+# ID3 Decision Tree 
 
-Michael Harkins (mph47)
-Greg Ziegan (grz5)
+Implementation of a the ID3 algorithm.
 
-Implementation of a decision tree.
+#### TODO: Optimize with numpy and stop using class dependency and example data
